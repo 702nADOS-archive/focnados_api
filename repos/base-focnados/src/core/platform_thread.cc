@@ -204,7 +204,15 @@ void Platform_thread::affinity(Affinity::Location location)
 
 	int const cpu = location.xpos();
 
-	l4_sched_param_t params = l4_sched_param(_prio);
+	l4_sched_param_t params;
+	/* set priority of thread */
+	if (_dl<=0)
+		params = l4_sched_param_by_type(Fixed_prio, _prio, 0);
+	else if(_prio<=0)
+		params = l4_sched_param_by_type(Deadline, _dl, 0);
+	else
+		PWRN("determining scheduling type failed");
+
 	params.affinity         = l4_sched_cpu_set(cpu, 0, 1);
 	l4_msgtag_t tag = l4_scheduler_run_thread(L4_BASE_SCHEDULER_CAP,
 	                                          _thread.local.dst(), &params);
@@ -253,8 +261,15 @@ void Platform_thread::_finalize_construction(const char *name)
 	strncpy(_name, name, sizeof(_name));
 	Fiasco::l4_debugger_set_object_name(_thread.local.dst(), name);
 
+	l4_sched_param_t params;
 	/* set priority of thread */
-	l4_sched_param_t params = l4_sched_param(_prio);
+	if (_dl<=0)
+		params = l4_sched_param_by_type(Fixed_prio, _prio, 0);
+	else if(_prio<=0)
+		params = l4_sched_param_by_type(Deadline, _dl, 0);
+	else
+		PWRN("determining scheduling type failed");
+
 	l4_scheduler_run_thread(L4_BASE_SCHEDULER_CAP, _thread.local.dst(),
 	                        &params);
 }
@@ -274,7 +289,24 @@ Platform_thread::Platform_thread(const char *name, unsigned prio, addr_t)
   _utcb(0),
   _platform_pd(0),
   _pager_obj(0),
-  _prio(Cpu_session::scale_priority(DEFAULT_PRIORITY, prio))
+  _prio(Cpu_session::scale_priority(DEFAULT_PRIORITY, prio)),
+  _dl(0)
+{
+	((Core_cap_index*)_thread.local.idx())->pt(this);
+	_create_thread();
+	_finalize_construction(name);
+}
+
+Platform_thread::Platform_thread(const char *name, unsigned prio, unsigned deadline, addr_t)
+: _state(DEAD),
+  _core_thread(false),
+  _thread(true),
+  _irq(true),
+  _utcb(0),
+  _platform_pd(0),
+  _pager_obj(0),
+  _prio(Cpu_session::scale_priority(DEFAULT_PRIORITY, prio)),
+  _dl(Cpu_session::scale_priority(DEFAULT_PRIORITY, deadline))
 {
 	((Core_cap_index*)_thread.local.idx())->pt(this);
 	_create_thread();
@@ -291,7 +323,8 @@ Platform_thread::Platform_thread(Core_cap_index* thread,
   _utcb(0),
   _platform_pd(0),
   _pager_obj(0),
-  _prio(Cpu_session::scale_priority(DEFAULT_PRIORITY, 0))
+  _prio(Cpu_session::scale_priority(DEFAULT_PRIORITY, 0)),
+  _dl(0)
 {
 	reinterpret_cast<Core_cap_index*>(_thread.local.idx())->pt(this);
 	_finalize_construction(name);
@@ -306,7 +339,8 @@ Platform_thread::Platform_thread(const char *name)
   _utcb(0),
   _platform_pd(0),
   _pager_obj(0),
-  _prio(Cpu_session::scale_priority(DEFAULT_PRIORITY, 0))
+  _prio(Cpu_session::scale_priority(DEFAULT_PRIORITY, 0)),
+  _dl(0)
 {
 	((Core_cap_index*)_thread.local.idx())->pt(this);
 	_create_thread();

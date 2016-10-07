@@ -2,5 +2,5 @@ LICENSE   	:= GPLv2
 VERSION   	:= git
 DOWNLOADS 	:= focnados.git
 URL(focnados)  	:= https://github.com/702nADOS/foc.git
-REV(focnados)  	:= a273fd1f295ace9b2b94094b8d2e576b00bbb16b
+REV(focnados)  	:= 1cf15c015461cbda9add8811af4e7afda7db982f
 DIR(focnados)  	:= src/kernel/foc

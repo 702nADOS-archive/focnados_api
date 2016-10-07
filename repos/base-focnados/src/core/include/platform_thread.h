@@ -51,6 +51,7 @@ namespace Genode {
 			                                      is bound to */
 			Pager_object      *_pager_obj;
 			unsigned           _prio;
+			unsigned		   _dl;				//deadline for EDF
 
 			Affinity::Location _location;
 
@@ -66,6 +67,11 @@ namespace Genode {
 			 * Constructor for non-core threads
 			 */
 			Platform_thread(const char *name, unsigned priority, addr_t);
+
+			/**
+			 * Constructor for fp-edf non-core threads
+			 */
+			Platform_thread(const char *name, unsigned priority, unsigned deadline, addr_t);
 
 			/**
 			 * Constructor for core main-thread
