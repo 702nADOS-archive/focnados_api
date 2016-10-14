@@ -297,7 +297,7 @@ Platform_thread::Platform_thread(const char *name, unsigned prio, addr_t)
 	_finalize_construction(name);
 }
 
-Platform_thread::Platform_thread(const char *name, unsigned prio, unsigned deadline, addr_t)
+Platform_thread::Platform_thread(const char *name, unsigned prio, unsigned deadline, Affinity::Location location, addr_t)
 : _state(DEAD),
   _core_thread(false),
   _thread(true),
@@ -310,6 +310,7 @@ Platform_thread::Platform_thread(const char *name, unsigned prio, unsigned deadl
 {
 	((Core_cap_index*)_thread.local.idx())->pt(this);
 	_create_thread();
+	affinity(location);
 	_finalize_construction(name);
 }
 
