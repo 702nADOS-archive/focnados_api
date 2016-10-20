@@ -33,10 +33,65 @@ void Cpu_thread_component::update_exception_sigh()
 };
 
 
+Thread_capability Cpu_session_component::create_fp_edf_thread(size_t weight,
+															Name const &name,
+															addr_t utcb,
+															unsigned priority,
+															unsigned deadline)
+{
+	PDBG("create_fp_edf_thread function called");
+	unsigned trace_control_index = 0;
+	if (!_trace_control_area.alloc(trace_control_index))
+		throw Out_of_metadata();
+
+	Trace::Control * const trace_control =
+		_trace_control_area.at(trace_control_index);
+
+	Trace::Thread_name thread_name(name.string());
+
+	Cpu_thread_component *thread = 0;
+
+	if (weight == 0) {
+		PWRN("Thread %s: Bad weight 0, using %i instead.",
+		     name.string(), DEFAULT_WEIGHT);
+		weight = DEFAULT_WEIGHT;
+	}
+	if (weight > QUOTA_LIMIT) {
+		PWRN("Thread %s: Oversized weight %zu, using %i instead.",
+		     name.string(), weight, QUOTA_LIMIT);
+		weight = QUOTA_LIMIT;
+	}
+	Lock::Guard thread_list_lock_guard(_thread_list_lock);
+	_incr_weight(weight);
+
+	try {
+		Lock::Guard slab_lock_guard(_thread_alloc_lock);
+		thread = new(&_thread_alloc)
+			Cpu_thread_component(
+				weight, _weight_to_quota(weight), _label, thread_name,
+				priority, deadline, utcb, _default_exception_handler,
+				trace_control_index, *trace_control, _location);
+
+		/* set default affinity defined by CPU session */
+		thread->platform_thread()->affinity(_location);
+	} catch (Allocator::Out_of_memory) {
+		throw Out_of_metadata();
+	}
+
+	_thread_list.insert(thread);
+
+	_trace_sources.insert(thread->trace_source());
+
+	return _thread_ep->manage(thread);
+}
+
+
+
 Thread_capability Cpu_session_component::create_thread(size_t weight,
                                                        Name const &name,
                                                        addr_t utcb)
 {
+	PDBG("create_thread called!");
 	unsigned trace_control_index = 0;
 	if (!_trace_control_area.alloc(trace_control_index))
 		throw Out_of_metadata();

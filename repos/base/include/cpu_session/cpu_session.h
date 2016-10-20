@@ -73,6 +73,12 @@ struct Genode::Cpu_session : Session
 	                                        Name const &name,
 	                                        addr_t utcb = 0) = 0;
 
+	virtual Thread_capability create_fp_edf_thread(size_t quota,
+	                                        Name const &name,
+	                                        addr_t utcb = 0,
+											unsigned priority = 0,
+											unsigned deadline = 0) = 0;
+
 	/**
 	 * Get dataspace of the UTCB that is used by the specified thread
 	 */
@@ -306,6 +312,9 @@ struct Genode::Cpu_session : Session
 	GENODE_RPC_THROW(Rpc_create_thread, Thread_capability, create_thread,
 	                 GENODE_TYPE_LIST(Thread_creation_failed, Out_of_metadata),
 	                 size_t, Name const &, addr_t);
+	GENODE_RPC_THROW(Rpc_create_fp_edf_thread, Thread_capability, create_fp_edf_thread,
+					 GENODE_TYPE_LIST(Thread_creation_failed, Out_of_metadata),
+					 size_t, Name const &, addr_t, unsigned, unsigned);
 	GENODE_RPC(Rpc_utcb, Ram_dataspace_capability, utcb, Thread_capability);
 	GENODE_RPC(Rpc_kill_thread, void, kill_thread, Thread_capability);
 	GENODE_RPC(Rpc_set_pager, int, set_pager, Thread_capability, Pager_capability);
@@ -341,6 +350,7 @@ struct Genode::Cpu_session : Session
 	 * of employing the convenience macro 'GENODE_RPC_INTERFACE'.
 	 */
 	typedef Meta::Type_tuple<Rpc_create_thread,
+			Meta::Type_tuple<Rpc_create_fp_edf_thread,
 	        Meta::Type_tuple<Rpc_utcb,
 	        Meta::Type_tuple<Rpc_kill_thread,
 	        Meta::Type_tuple<Rpc_set_pager,
@@ -362,7 +372,7 @@ struct Genode::Cpu_session : Session
 	        Meta::Type_tuple<Rpc_transfer_quota,
 	        Meta::Type_tuple<Rpc_quota,
 	                         Meta::Empty>
-	        > > > > > > > > > > > > > > > > > > > > Rpc_functions;
+	        > > > > > > > > > > > > > > > > > > > > > Rpc_functions;
 };
 
 struct Genode::Cpu_session::Quota

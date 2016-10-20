@@ -39,6 +39,19 @@ struct Genode::Cpu_connection : Connection<Cpu_session>, Cpu_session_client
 			session(affinity, "priority=0x%lx, ram_quota=%u, label=\"%s\"",
 			        priority, RAM_QUOTA, label)),
 		Cpu_session_client(cap()) { }
+
+
+/*
+	Cpu_connection_fp_edf(char     const *label    = "",
+				   long            priority = DEFAULT_PRIORITY,
+				   long			   deadline = 0,
+				   Affinity const &affinity = Affinity())
+	:
+		Connection<Cpu_session>(
+			session(affinity, "priority=0x%lx, ram_quota=%u, label=\"%s\"",
+					priority, RAM_QUOTA, label)),
+		Cpu_session_client(cap()) { }
+*/
 };
 
 #endif /* _INCLUDE__CPU_SESSION__CONNECTION_H_ */

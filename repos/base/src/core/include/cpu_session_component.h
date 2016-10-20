@@ -95,6 +95,25 @@ namespace Genode {
 				update_exception_sigh();
 			}
 
+			Cpu_thread_component(size_t const weight,
+								 size_t const quota,
+								 Session_label const &label,
+								 Thread_name const &name,
+								 unsigned priority, unsigned deadline,
+								 addr_t utcb,
+								 Signal_context_capability sigh,
+								 unsigned trace_control_index,
+								 Trace::Control &trace_control)
+			:
+				_weight(weight),
+				_session_label(label), _name(name),
+				_platform_thread(quota, name.string(), priority, deadline, utcb),
+				_bound(false), _sigh(sigh),
+				_trace_control_index(trace_control_index),
+				_trace_source(*this, trace_control)
+			{
+				update_exception_sigh();
+			}
 
 			/********************************************
 			 ** Trace::Source::Info_accessor interface **
@@ -261,6 +280,7 @@ namespace Genode {
 			 ***************************/
 
 			Thread_capability create_thread(size_t, Name const &, addr_t);
+			Thread_capability create_fp_edf_thread(size_t, Name const &, addr_t,unsigned ,unsigned);
 			Ram_dataspace_capability utcb(Thread_capability thread);
 			void kill_thread(Thread_capability);
 			int set_pager(Thread_capability, Pager_capability);
