@@ -39,7 +39,6 @@ Thread_capability Cpu_session_component::create_fp_edf_thread(size_t weight,
 															unsigned priority,
 															unsigned deadline)
 {
-	PDBG("create_fp_edf_thread function called");
 	unsigned trace_control_index = 0;
 	if (!_trace_control_area.alloc(trace_control_index))
 		throw Out_of_metadata();
@@ -91,7 +90,6 @@ Thread_capability Cpu_session_component::create_thread(size_t weight,
                                                        Name const &name,
                                                        addr_t utcb)
 {
-	PDBG("create_thread called!");
 	unsigned trace_control_index = 0;
 	if (!_trace_control_area.alloc(trace_control_index))
 		throw Out_of_metadata();

@@ -305,8 +305,8 @@ Platform_thread::Platform_thread(const char *name, unsigned prio, unsigned deadl
   _utcb(0),
   _platform_pd(0),
   _pager_obj(0),
-  _prio(Cpu_session::scale_priority(DEFAULT_PRIORITY, prio)),
-  _dl(Cpu_session::scale_priority(DEFAULT_PRIORITY, deadline))
+  _prio(prio),
+  _dl(deadline)
 {
 	((Core_cap_index*)_thread.local.idx())->pt(this);
 	_create_thread();

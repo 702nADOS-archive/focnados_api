@@ -27,14 +27,11 @@ struct Genode::Cpu_session_client : Rpc_client<Cpu_session>
 
 	Thread_capability
 	create_thread(size_t quota, Name const &name, addr_t utcb = 0) override {
-		PDBG("client.h: create_thread");
 		return call<Rpc_create_thread>(quota, name, utcb); }
 
 	Thread_capability
 	create_fp_edf_thread(size_t quota, Name const &name, addr_t utcb = 0,
 				unsigned priority = 0, unsigned deadline = 0) override {
-		PDBG("client.h: create_fp_edf_thread");
-		//return call<Rpc_create_thread>(quota, name, utcb); }
 		return call<Rpc_create_fp_edf_thread>(quota, name, utcb, priority, deadline); }
 
 	Ram_dataspace_capability utcb(Thread_capability thread) override {
