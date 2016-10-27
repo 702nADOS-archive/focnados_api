@@ -77,7 +77,7 @@ struct Genode::Cpu_session : Session
 	                                        Name const &name,
 	                                        addr_t utcb = 0,
 											unsigned priority = 0,
-											unsigned deadline = 0) = 0;
+											unsigned deadline = 0, unsigned cpu = 0) = 0;
 
 	/**
 	 * Get dataspace of the UTCB that is used by the specified thread
@@ -314,7 +314,7 @@ struct Genode::Cpu_session : Session
 	                 size_t, Name const &, addr_t);
 	GENODE_RPC_THROW(Rpc_create_fp_edf_thread, Thread_capability, create_fp_edf_thread,
 					 GENODE_TYPE_LIST(Thread_creation_failed, Out_of_metadata),
-					 size_t, Name const &, addr_t, unsigned, unsigned);
+					 size_t, Name const &, addr_t, unsigned, unsigned, unsigned);
 	GENODE_RPC(Rpc_utcb, Ram_dataspace_capability, utcb, Thread_capability);
 	GENODE_RPC(Rpc_kill_thread, void, kill_thread, Thread_capability);
 	GENODE_RPC(Rpc_set_pager, int, set_pager, Thread_capability, Pager_capability);

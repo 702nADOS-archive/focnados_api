@@ -213,7 +213,7 @@ void Platform_thread::affinity(Affinity::Location location)
 	else
 		PWRN("determining scheduling type failed");
 
-	params.affinity         = l4_sched_cpu_set(cpu, 0, 1);
+	params.affinity = l4_sched_cpu_set(cpu, 0, 1);
 	l4_msgtag_t tag = l4_scheduler_run_thread(L4_BASE_SCHEDULER_CAP,
 	                                          _thread.local.dst(), &params);
 	if (l4_error(tag))

@@ -31,8 +31,8 @@ struct Genode::Cpu_session_client : Rpc_client<Cpu_session>
 
 	Thread_capability
 	create_fp_edf_thread(size_t quota, Name const &name, addr_t utcb = 0,
-				unsigned priority = 0, unsigned deadline = 0) override {
-		return call<Rpc_create_fp_edf_thread>(quota, name, utcb, priority, deadline); }
+				unsigned priority = 0, unsigned deadline = 0, unsigned cpu = 0) override {
+		return call<Rpc_create_fp_edf_thread>(quota, name, utcb, priority, deadline, cpu); }
 
 	Ram_dataspace_capability utcb(Thread_capability thread) override {
 		return call<Rpc_utcb>(thread); }

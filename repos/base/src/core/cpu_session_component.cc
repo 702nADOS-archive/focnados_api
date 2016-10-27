@@ -37,7 +37,8 @@ Thread_capability Cpu_session_component::create_fp_edf_thread(size_t weight,
 															Name const &name,
 															addr_t utcb,
 															unsigned priority,
-															unsigned deadline)
+															unsigned deadline,
+															unsigned cpu)
 {
 	unsigned trace_control_index = 0;
 	if (!_trace_control_area.alloc(trace_control_index))
@@ -63,16 +64,18 @@ Thread_capability Cpu_session_component::create_fp_edf_thread(size_t weight,
 	Lock::Guard thread_list_lock_guard(_thread_list_lock);
 	_incr_weight(weight);
 
+	Affinity::Location location(cpu, 0);
+
 	try {
 		Lock::Guard slab_lock_guard(_thread_alloc_lock);
 		thread = new(&_thread_alloc)
 			Cpu_thread_component(
 				weight, _weight_to_quota(weight), _label, thread_name,
 				priority, deadline, utcb, _default_exception_handler,
-				trace_control_index, *trace_control, _location);
+				trace_control_index, *trace_control, location);
 
 		/* set default affinity defined by CPU session */
-		thread->platform_thread()->affinity(_location);
+		thread->platform_thread()->affinity(location);
 	} catch (Allocator::Out_of_memory) {
 		throw Out_of_metadata();
 	}
