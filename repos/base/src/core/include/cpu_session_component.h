@@ -181,6 +181,8 @@ namespace Genode {
 			Trace::Source_registry    &_trace_sources;
 			Trace::Control_area        _trace_control_area;
 
+			int*					   _sched_type;
+
 			/*
 			 * Members for quota accounting
 			 */
@@ -279,6 +281,8 @@ namespace Genode {
 			 ** CPU session interface **
 			 ***************************/
 
+			int set_sched_type(unsigned core, unsigned sched_type);
+			int get_sched_type(unsigned core);
 			Thread_capability create_thread(size_t, Name const &, addr_t);
 			Thread_capability create_fp_edf_thread(size_t, Name const &, addr_t,unsigned ,unsigned, unsigned);
 			Ram_dataspace_capability utcb(Thread_capability thread);

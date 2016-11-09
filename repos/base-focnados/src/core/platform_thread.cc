@@ -210,8 +210,10 @@ void Platform_thread::affinity(Affinity::Location location)
 		params = l4_sched_param_by_type(Fixed_prio, _prio, 0);
 	else if(_prio<=0)
 		params = l4_sched_param_by_type(Deadline, _dl, 0);
-	else
-		PWRN("determining scheduling type failed");
+	else{
+		PWRN("wrong scheduling type");
+		return;
+	}
 
 	params.affinity = l4_sched_cpu_set(cpu, 0, 1);
 	l4_msgtag_t tag = l4_scheduler_run_thread(L4_BASE_SCHEDULER_CAP,
@@ -267,8 +269,10 @@ void Platform_thread::_finalize_construction(const char *name)
 		params = l4_sched_param_by_type(Fixed_prio, _prio, 0);
 	else if(_prio<=0)
 		params = l4_sched_param_by_type(Deadline, _dl, 0);
-	else
-		PWRN("determining scheduling type failed");
+	else{
+		PWRN("wrong scheduling type");
+		return;
+	}
 
 	l4_scheduler_run_thread(L4_BASE_SCHEDULER_CAP, _thread.local.dst(),
 	                        &params);

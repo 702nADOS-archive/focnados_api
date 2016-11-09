@@ -33,6 +33,28 @@ void Cpu_thread_component::update_exception_sigh()
 };
 
 
+int Cpu_session_component::set_sched_type(unsigned core, unsigned sched_type){
+	if (core >= platform()->affinity_space().total()){
+		PERR("Core not available");
+		return -1;
+	}
+	if (sched_type < 0 || sched_type > 3){
+		PERR("sched_type not known");
+		return -2;
+	}
+
+	_sched_type[core] = sched_type;
+	return 0;
+}
+
+int Cpu_session_component::get_sched_type(unsigned core){
+	if (core >= platform()->affinity_space().total()){
+		PERR("Core not available");
+		return -1;
+	}
+	return _sched_type[core];
+}
+
 Thread_capability Cpu_session_component::create_fp_edf_thread(size_t weight,
 															Name const &name,
 															addr_t utcb,
@@ -40,6 +62,8 @@ Thread_capability Cpu_session_component::create_fp_edf_thread(size_t weight,
 															unsigned deadline,
 															unsigned cpu)
 {
+
+
 	unsigned trace_control_index = 0;
 	if (!_trace_control_area.alloc(trace_control_index))
 		throw Out_of_metadata();
@@ -50,6 +74,18 @@ Thread_capability Cpu_session_component::create_fp_edf_thread(size_t weight,
 	Trace::Thread_name thread_name(name.string());
 
 	Cpu_thread_component *thread = 0;
+
+	if (_sched_type[cpu] == FIXED_PRIO && priority == 0){
+		PERR("Wrong Scheduling Type on CPU %d, expected Fixed Priority", cpu);
+		deadline = -1;
+		priority = -1;
+	}
+	if(_sched_type[cpu] == DEADLINE && deadline == 0){
+		PERR("Wrong Scheduling Type on CPU %d, expected EDF", cpu);
+		deadline = -1;
+		priority = -1;
+	}
+
 
 	if (weight == 0) {
 		PWRN("Thread %s: Bad weight 0, using %i instead.",
@@ -85,6 +121,7 @@ Thread_capability Cpu_session_component::create_fp_edf_thread(size_t weight,
 	_trace_sources.insert(thread->trace_source());
 
 	return _thread_ep->manage(thread);
+
 }
 
 
@@ -486,6 +523,8 @@ Cpu_session_component::Cpu_session_component(Rpc_entrypoint         *session_ep,
 		/* clamp priority value to valid range */
 		_priority = min((unsigned)PRIORITY_LIMIT - 1, _priority);
 	}
+	/*Create Array with number_of_core Elements for storing scheduling strategy*/
+	_sched_type = new (Genode::env()->heap()) long[platform()->affinity_space().total()];
 }
 
 
@@ -493,6 +532,7 @@ Cpu_session_component::~Cpu_session_component()
 {
 	_deinit_threads();
 	_deinit_ref_account();
+	destroy(Genode::env()->heap(), _sched_type);
 }
 
 

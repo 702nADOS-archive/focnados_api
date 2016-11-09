@@ -34,6 +34,12 @@ struct Genode::Cpu_session_client : Rpc_client<Cpu_session>
 				unsigned priority = 0, unsigned deadline = 0, unsigned cpu = 0) override {
 		return call<Rpc_create_fp_edf_thread>(quota, name, utcb, priority, deadline, cpu); }
 
+	int set_sched_type(unsigned core = 0, unsigned sched_type = 0){
+		return call<Rpc_set_sched_type>(core, sched_type); }
+
+	int get_sched_type(unsigned core = 0){
+		return call<Rpc_get_sched_type>(core); }
+
 	Ram_dataspace_capability utcb(Thread_capability thread) override {
 		return call<Rpc_utcb>(thread); }
 
