@@ -63,7 +63,6 @@ Thread_capability Cpu_session_component::create_fp_edf_thread(size_t weight,
 															unsigned cpu)
 {
 
-
 	unsigned trace_control_index = 0;
 	if (!_trace_control_area.alloc(trace_control_index))
 		throw Out_of_metadata();
@@ -77,13 +76,11 @@ Thread_capability Cpu_session_component::create_fp_edf_thread(size_t weight,
 
 	if (_sched_type[cpu] == FIXED_PRIO && priority == 0){
 		PERR("Wrong Scheduling Type on CPU %d, expected Fixed Priority", cpu);
-		deadline = -1;
-		priority = -1;
+		throw Cpu_session::Thread_creation_failed();
 	}
 	if(_sched_type[cpu] == DEADLINE && deadline == 0){
 		PERR("Wrong Scheduling Type on CPU %d, expected EDF", cpu);
-		deadline = -1;
-		priority = -1;
+		throw Cpu_session::Thread_creation_failed();
 	}
 
 
